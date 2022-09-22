@@ -1,0 +1,2 @@
+# spark_streaming_kafka_usecases
+spark_streaming_kafka_usecases
