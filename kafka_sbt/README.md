@@ -6,8 +6,7 @@ $ docker stack deploy -c docker-composer.yml kfk
 
 1) download sbt
 
-```shell
-[SPK:]
+```shell SPK
 $ wget https://github.com/sbt/sbt/releases/download/v1.3.8/sbt-1.3.8.tgz
 $ tar zxvf sbt-1.3.8.tgz
 $ mv sbt /usr/local
@@ -17,7 +16,6 @@ $ export PATH=$PATH:/usr/local/sbt/bin
 2) run sbt to prepare enviroment
 
 ```shell
-<SPK>
 $ sbt
 ```
 
