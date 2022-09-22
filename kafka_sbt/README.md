@@ -7,6 +7,7 @@ $ docker stack deploy -c docker-composer.yml kfk
 1) download sbt
 
 ```shell
+<SPK>
 $ wget https://github.com/sbt/sbt/releases/download/v1.3.8/sbt-1.3.8.tgz
 $ tar zxvf sbt-1.3.8.tgz
 $ mv sbt /usr/local
@@ -16,12 +17,14 @@ $ export PATH=$PATH:/usr/local/sbt/bin
 2) run sbt to prepare enviroment
 
 ```shell
+<SPK>
 $ sbt
 ```
 
 3) create directory for build
 
 ```shell
+<SPK>
 $ mkdir app
 $ cd app
 $ # copy kafka-consumer.sbt and KafkaStream.scala
@@ -29,14 +32,18 @@ $ # copy kafka-consumer.sbt and KafkaStream.scala
 
 4) build and create jar
 ```shell
+<SPK>
 $ sbt package
 $ cd ~
 ```
 
 5) create test topic and run kafka producer script
 ```shell
+<KFK>
 $ kafka-topics.sh --create --zookeeper kfk1:2181,kfk2:2181,kfk3:2181 --replication-factor 2 --partitions 1 --topic test
-
+Created topic "test".
+$ kafka-topics.sh --list --zookeeper kfk1:2181,kfk2:2181,kfk3:2181
+test
 $ kafka-console-producer.sh --broker-list kfk1:9092,kfk2:9092,kfk3:9092 --topic test
 >Apache Spark is a multi-language engine
 >Spark is an Open Source
@@ -49,6 +56,7 @@ $ kafka-console-producer.sh --broker-list kfk1:9092,kfk2:9092,kfk3:9092 --topic 
 6) run the package
 
 ```shell
+<SPK>
 $ spark-submit --master local[*] --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.2,org.apache.spark:spark-streaming-kafka-0-10_2.11:2.3.2 --class KafkaStream.kafkastream app/target/scala-2.11/kafka-consumer_2.11-1.0.0.jar
 Ivy Default Cache set to: /root/.ivy2/cache
 The jars for the packages stored in: /root/.ivy2/jars
