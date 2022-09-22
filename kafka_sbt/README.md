@@ -5,7 +5,6 @@ To run, prepare a Spark environment having YARN/Standalone cluster manager
 $ docker stack deploy -c docker-composer.yml kfk
 
 1) download sbt
-
 ```shell
 $ wget https://github.com/sbt/sbt/releases/download/v1.3.8/sbt-1.3.8.tgz
 $ tar zxvf sbt-1.3.8.tgz
@@ -14,13 +13,11 @@ $ export PATH=$PATH:/usr/local/sbt/bin
 ```
 
 2) run sbt to prepare enviroment
-
 ```shell
 $ sbt
 ```
 
 3) create directory for build
-
 ```shell
 $ mkdir app
 $ cd app
@@ -49,7 +46,6 @@ $ kafka-console-producer.sh --broker-list kfk1:9092,kfk2:9092,kfk3:9092 --topic 
 ```
 
 6) run the package
-
 ```shell
 $ spark-submit --master local[*] --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.2,org.apache.spark:spark-streaming-kafka-0-10_2.11:2.3.2 --class KafkaStream.kafkastream app/target/scala-2.11/kafka-consumer_2.11-1.0.0.jar
 Ivy Default Cache set to: /root/.ivy2/cache
