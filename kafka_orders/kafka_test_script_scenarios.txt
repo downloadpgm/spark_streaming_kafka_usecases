@@ -60,7 +60,7 @@ str2.col("cp")(6).cast(StringType).alias("o_type"))
 
 val str4 = str3.groupBy("stock").agg(count("stock").alias("count"),sum("amount").alias("total")).orderBy(desc("count"))
 
-str4.writeStream.trigger(Trigger.ProcessingTime("30 seconds")).format("console").outputMode("complete").start()
+str4.writeStream.trigger(Trigger.ProcessingTime("30 seconds")).format("console").option("numRows",10).outputMode("complete").start()
 
 ----------------
 
