@@ -2,7 +2,7 @@ package KafkaStream
 
 import org.apache.spark.sql.SparkSession
 
-object kafkastream {
+object kafkastream extends Serializable {
 
    def main( args: Array[String] ) {
 
