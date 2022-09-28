@@ -1,6 +1,8 @@
 ## Start Swarm cluster
 
-NOTE : - build ubspkcli_kfk_img from spark_client_yarn_cluster_dockerized repository
+NOTE : follow steps below to build spark with python-kafka library
+
+       - build ubspkcli_kfk_img from spark_client_yarn_cluster_dockerized repository
 
        - in Dockerfile, add :
 	   
