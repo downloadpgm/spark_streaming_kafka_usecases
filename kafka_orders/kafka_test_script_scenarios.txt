@@ -97,7 +97,8 @@ str2.col("cp")(4).cast(LongType).alias("amount"),
 str2.col("cp")(5).cast(DoubleType).alias("price"),
 str2.col("cp")(6).cast(StringType).alias("o_type"))
 
-val str4 = str3.withWatermark("evt_time", "2 minutes").groupBy(str3.col("stock"),window(col("evt_time"), "2 minute")).agg(count("stock").alias("count"),sum("amount").alias("total")).select("stock","count","total").orderBy(desc("count"))
+val str4 = str3.withWatermark("evt_time", "2 minutes").groupBy(str3.col("stock"),window(col("evt_time"), "2 minute"))
+           .agg(count("stock").alias("count"),sum("amount").alias("total")).select("stock","count","total").orderBy(desc("count"))
 
 str4.writeStream.trigger(Trigger.ProcessingTime("30 seconds")).format("console").option("numRows",10).outputMode("complete").start()
 
