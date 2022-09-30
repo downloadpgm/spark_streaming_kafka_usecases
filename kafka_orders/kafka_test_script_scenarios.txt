@@ -95,12 +95,12 @@ str2.col("cp")(2).cast(LongType).alias("clientID"),
 str2.col("cp")(3).cast(StringType).alias("stock"),
 str2.col("cp")(4).cast(LongType).alias("amount"),
 str2.col("cp")(5).cast(DoubleType).alias("price"),
-str2.col("cp")(6).cast(StringType).alias("o_type"))
+str2.col("cp")(6).cast(StringType).alias("o_type")
+).withColumn("transact", when(col("o_type") === "S", lit(-1)*col("amount")).otherwise(col("amount")))
 
-val str4 = str3.withWatermark("evt_time", "2 minutes").groupBy(str3.col("stock"),window(col("evt_time"), "2 minute"))
-           .agg(count("stock").alias("count"),sum("amount").alias("total")).select("stock","count","total").orderBy(desc("count"))
+val str4 = str3.withWatermark("evt_time", "2 minutes").groupBy(str3.col("stock"),window(col("evt_time"), "2 minute")).agg(count("stock").alias("count"),sum("transact").alias("total")).select("stock","count","total").orderBy(desc("total"))
 
-str4.writeStream.trigger(Trigger.ProcessingTime("30 seconds")).format("console").option("numRows",10).outputMode("complete").start()
+val qry = str4.writeStream.trigger(Trigger.ProcessingTime("30 seconds")).format("console").option("numRows",10).outputMode("complete").start()
 
 ---------------
 
@@ -118,7 +118,7 @@ Lines = file1.readlines()
 count = 0
 # Strips the newline character
 for line in Lines:
-    secs = randint(0,100)*(1 if random() > 0.5 else -1)
+    secs = -1 * randint(0,100)
     evt_time = datetime.now() + timedelta(seconds=secs)
 	
     count += 1

@@ -2,7 +2,7 @@
 
 NOTE : follow steps below to build spark with python-kafka library
 
-       - build ubspkcli_kfk_img from spark_client_yarn_cluster_dockerized repository
+       - build ubspkcli_kfk_img from https://github.com/downloadpgm/spark_standalone_cluster_dockerized
 
        - in Dockerfile, add :
 	   
