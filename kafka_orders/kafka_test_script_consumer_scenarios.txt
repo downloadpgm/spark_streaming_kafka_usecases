@@ -22,11 +22,11 @@ str2.col("cp")(6).cast(StringType).alias("o_type")
 ).withColumn("transact", when(col("o_type") === "S", lit(-1)*col("amount")*col("price")).otherwise(col("amount")*col("price")))
 
 val str4 = str3.groupBy("stock").agg(count("stock").alias("count"),sum("transact").alias("total"))
-.orderBy(asc("total")).select(concat(col("stock"),lit("|"),col("total")).alias("value"))
+.orderBy(asc("total")).select(to_json(struct(col("stock"),col("count"),col("total"))).alias("value"))
 
 str4.writeStream.trigger(Trigger.ProcessingTime("30 seconds"))
 .format("kafka").option("kafka.bootstrap.servers", "kfk1:9092,kfk2:9092,kfk3:9092").option("topic","result")
-.option("checkpointLocation", "/root/check").outputMode("complete").start()
+.option("checkpointLocation", "/root/chkpoint").outputMode("complete").start()
 
 ----------------
 
@@ -63,15 +63,11 @@ str2.col("cp")(3).cast(StringType).alias("stock"),
 str2.col("cp")(4).cast(LongType).alias("amount"),
 str2.col("cp")(5).cast(DoubleType).alias("price"),
 str2.col("cp")(6).cast(StringType).alias("o_type")
-).withColumn("transact", when(col("o_type") === "S", lit(-1)*col("amount")).otherwise(col("amount")))
+).withColumn("transact", when(col("o_type") === "S", lit(-1)*col("amount")*col("price")).otherwise(col("amount")*col("price")))
 
-val str4 = str3.withWatermark("evt_time", "2 minutes").groupBy(str3.col("stock"),window(col("evt_time"), "2 minute"))
-.agg(count("stock").alias("count"),sum("transact").alias("total"))
-.select(concat(col("stock"),lit("|"),col("total")).alias("value"))
+val str4 = str3.withWatermark("evt_time", "2 minutes").groupBy(str3.col("stock"),window(col("evt_time"), "2 minute")).agg(count("stock").alias("count"),sum("transact").alias("total")).select(to_json(struct(col("stock"),col("count"),col("total"))).alias("value"))
 
-val qry = str4.writeStream.trigger(Trigger.ProcessingTime("30 seconds"))
-.format("kafka").option("kafka.bootstrap.servers", "kfk1:9092,kfk2:9092,kfk3:9092").option("topic","result")
-.option("checkpointLocation", "/root/check").outputMode("update").start()
+val qry = str4.writeStream.trigger(Trigger.ProcessingTime("30 seconds")).format("kafka").option("kafka.bootstrap.servers", "kfk1:9092,kfk2:9092,kfk3:9092").option("topic","result").option("checkpointLocation", "/root/chkpoint").outputMode("update").start()
 
 ---------------
 

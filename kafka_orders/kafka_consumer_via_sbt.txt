@@ -1,0 +1,55 @@
+name := "kafka-consumer"
+
+version := "1.0.0"
+
+scalaVersion := "2.11.8"
+
+libraryDependencies ++= Seq(
+  "org.apache.spark" %% "spark-core" % "2.3.2" % "provided",
+  "org.apache.spark" %% "spark-sql" % "2.3.2" % "provided",
+  "org.apache.spark" %% "spark-sql-kafka-0-10" % "2.3.2" % "provided",
+  "org.apache.spark" %% "spark-streaming-kafka-0-10" % "2.3.2" % "provided"
+)
+
+-------------
+
+package KafkaStream
+
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.streaming.Trigger
+
+
+object KafkaStream {
+
+  def main (args: Array[String] ) {
+  
+    val spark = SparkSession.builder().config("spark.sql.shuffle.partitions",10).appName("kafka consumer").getOrCreate()
+    
+    val str1 = spark.readStream.format("kafka").option("kafka.bootstrap.servers", "kfk1:9092,kfk2:9092,kfk3:9092").option("subscribe", "test").load()
+
+    val str2 = str1.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)").select(split(col("value"),",").alias("cp"))
+
+    val str3 = str2.select(to_timestamp(str2.col("cp")(0)).alias("o_time"),
+    str2.col("cp")(2).cast(LongType).alias("clientID"),
+    str2.col("cp")(3).cast(StringType).alias("stock"),
+    str2.col("cp")(4).cast(LongType).alias("amount"),
+    str2.col("cp")(5).cast(DoubleType).alias("price"),
+    str2.col("cp")(6).cast(StringType).alias("o_type")
+    ).withColumn("transact", when(col("o_type") === "S", lit(-1)*col("amount")*col("price")).otherwise(col("amount")*col("price")))
+
+    val str4 = str3.groupBy("stock").agg(count("stock").alias("count"),sum("transact").alias("total")).orderBy(desc("total"))
+
+    val query = str4.writeStream.trigger(Trigger.ProcessingTime("30 seconds")).format("console").option("numRows",10).outputMode("complete")
+	
+    query.start().awaitTermination()
+
+  }
+
+}
+
+-----------------------
+
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.2,org.apache.spark:spark-streaming-kafka-0-10_2.11:2.3.2 --class KafkaStream.KafkaStream app/target/scala-2.11/kafka-consumer_2.11-1.0.0.jar
+

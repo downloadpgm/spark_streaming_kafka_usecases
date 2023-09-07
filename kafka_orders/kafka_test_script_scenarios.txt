@@ -115,6 +115,7 @@ val qry = str4.writeStream.trigger(Trigger.ProcessingTime("30 seconds")).format(
 
 ---------------
 
+
 from datetime import datetime, timedelta
 from random import randint, random
 
@@ -133,4 +134,4 @@ for line in Lines:
 	
     count += 1
     producer.send('test', key=bytes(f'message-${count}',encoding="raw_unicode_escape"), value=bytes(line+','+evt_time.strftime('%Y-%m-%d %H:%M:%S'),encoding="raw_unicode_escape"))
-    time.sleep(0.5)
+    time.sleep(0.1)
